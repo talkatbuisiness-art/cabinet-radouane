@@ -226,27 +226,51 @@ function App() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* Card 1 */}
-            <div className="group bg-cream-warm hover:bg-cream-dark rounded-2xl p-8 border border-ochre/10 hover:border-ochre/30 shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="w-14 h-14 bg-forest/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-forest/20 transition-colors">
-                <Heart className="w-7 h-7 text-forest" />
+            <div className="group bg-cream-warm hover:bg-cream-dark rounded-2xl border border-ochre/10 hover:border-ochre/30 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+              <div className="relative h-44 overflow-hidden">
+                <img
+                  src="/images/home.jpg"
+                  alt="Droit de la famille"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-forest/60 to-transparent" />
+                <div className="absolute bottom-3 left-3">
+                  <div className="w-10 h-10 bg-forest/90 rounded-lg flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-cream" />
+                  </div>
+                </div>
               </div>
-              <h3 className="font-heading text-xl font-semibold text-forest mb-3">Droit de la famille</h3>
-              <p className="text-gray-600 leading-relaxed text-sm">
-                Divorce, garde d’enfants, pension alimentaire, successions et régimes matrimoniaux.
-                Une approche humaine et attentive pour préserver vos intérêts et ceux de vos proches.
-              </p>
+              <div className="p-7">
+                <h3 className="font-heading text-xl font-semibold text-forest mb-3">Droit de la famille</h3>
+                <p className="text-gray-600 leading-relaxed text-sm">
+                  Divorce, garde d’enfants, pension alimentaire, successions et régimes matrimoniaux.
+                  Une approche humaine et attentive pour préserver vos intérêts et ceux de vos proches.
+                </p>
+              </div>
             </div>
 
             {/* Card 2 */}
-            <div className="group bg-cream-warm hover:bg-cream-dark rounded-2xl p-8 border border-ochre/10 hover:border-ochre/30 shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="w-14 h-14 bg-forest/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-forest/20 transition-colors">
-                <Home className="w-7 h-7 text-forest" />
+            <div className="group bg-cream-warm hover:bg-cream-dark rounded-2xl border border-ochre/10 hover:border-ochre/30 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+              <div className="relative h-44 overflow-hidden">
+                <img
+                  src="/images/keys.jpg"
+                  alt="Droit immobilier"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-forest/60 to-transparent" />
+                <div className="absolute bottom-3 left-3">
+                  <div className="w-10 h-10 bg-forest/90 rounded-lg flex items-center justify-center">
+                    <Home className="w-5 h-5 text-cream" />
+                  </div>
+                </div>
               </div>
-              <h3 className="font-heading text-xl font-semibold text-forest mb-3">Droit immobilier</h3>
-              <p className="text-gray-600 leading-relaxed text-sm">
-                Transactions immobilières, baux commerciaux, litiges de copropriété, construction et urbanisme.
-                Sécurisez vos investissements patrimoniaux avec un conseil de qualité.
-              </p>
+              <div className="p-7">
+                <h3 className="font-heading text-xl font-semibold text-forest mb-3">Droit immobilier</h3>
+                <p className="text-gray-600 leading-relaxed text-sm">
+                  Transactions immobilières, baux commerciaux, litiges de copropriété, construction et urbanisme.
+                  Sécurisez vos investissements patrimoniaux avec un conseil de qualité.
+                </p>
+              </div>
             </div>
 
             {/* Card 3 */}
