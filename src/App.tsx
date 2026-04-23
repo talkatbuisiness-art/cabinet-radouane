@@ -116,8 +116,16 @@ function App() {
       {/* ---------- Hero ---------- */}
       <header
         id="accueil"
-        className="relative pt-28 pb-20 md:pt-40 md:pb-32 bg-gradient-to-br from-forest via-forest-light to-forest-dark text-cream overflow-hidden"
+        className="relative pt-28 pb-20 md:pt-40 md:pb-32 text-cream overflow-hidden"
       >
+        {/* Background image */}
+        <img
+          src="/images/hero.jpg"
+          alt="Cabinet d'avocats"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-forest/80" />
+
         {/* Subtle arabesque overlay */}
         <div className="absolute inset-0 arabesque-bg opacity-30 pointer-events-none" />
 
