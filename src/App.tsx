@@ -1,598 +1,430 @@
-import { useState, useEffect } from 'react'
-import {
-  Scale,
-  Heart,
-  Home,
-  Shield,
-  Phone,
-  MapPin,
-  Mail,
-  Star,
-  Menu,
-  X,
-  MessageCircle,
-  Clock,
-  Award,
-  ChevronRight,
-  Send,
-  CheckCircle2,
-  User,
-} from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Scale, Phone, Menu, ArrowRight } from 'lucide-react'
 
-function App() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [formStatus, setFormStatus] = useState<'idle' | 'sent'>('idle')
+// Hook pour les animations au scroll
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [isInView, setIsInView] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setIsMenuOpen(false)
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsInView(true)
+          observer.disconnect()
+        }
+      },
+      { threshold, rootMargin: '0px 0px -50px 0px' }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [threshold])
+
+  return { ref, isInView }
+}
+
+// Navigation
+function Navigation() {
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const navLinks = [
+    { href: '#accueil', label: 'Accueil' },
+    { href: '#expertises', label: 'Expertises' },
+    { href: '#temoignages', label: 'Témoignages' },
+    { href: '#localisation', label: 'Localisation' },
+    { href: '#contact', label: 'Contact' }
+  ]
+
+  return (
+    <>
+      <nav className="nav">
+        <div className="nav-inner">
+          <a href="#" className="logo">Cabinet Radouane</a>
+          <ul className="nav-links">
+            {navLinks.map(link => (
+              <li key={link.href}><a href={link.href}>{link.label}</a></li>
+            ))}
+          </ul>
+          <a href="#contact" className="nav-cta">Consultation</a>
+          <button
+            className={`mobile-menu-btn ${mobileMenuOpen ? 'active' : ''}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Menu"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </nav>
+
+      <div className={`mobile-menu ${mobileMenuOpen ? 'active' : ''}`}>
+        <ul>
+          {navLinks.map(link => (
+            <li key={link.href}>
+              <a href={link.href} onClick={() => setMobileMenuOpen(false)}>
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div className="mobile-ornament"></div>
+        <a href="#contact" className="btn-primary" onClick={() => setMobileMenuOpen(false)}>
+          Prendre Rendez-vous
+        </a>
+      </div>
+    </>
+  )
+}
+
+// Hero
+function Hero() {
+  return (
+    <section className="hero" id="accueil">
+      <div className="hero-ornament"></div>
+      <div className="hero-content">
+        <p className="hero-pretitle">Cabinet d'Avocats — Paris</p>
+        <h1 className="hero-title">
+          L'Excellence <em>Juridique</em> <br />
+          Depuis 1892
+        </h1>
+        <p className="hero-subtitle">
+          Un héritage de rigueur et de prestige au service de vos intérêts.
+          Notre cabinet incarne l'art français de la défense juridique.
+        </p>
+        <div className="hero-cta-group">
+          <a href="#contact" className="btn-primary">Consultation Privée</a>
+          <a href="#expertises" className="btn-secondary">Nos Expertises</a>
+        </div>
+      </div>
+      <div className="hero-scroll">
+        <span>Découvrir</span>
+        <div className="hero-scroll-line"></div>
+      </div>
+    </section>
+  )
+}
+
+// Stats
+function Stats() {
+  const stats = [
+    { number: '130+', label: "Années d'Excellence" },
+    { number: '5000+', label: 'Dossiers Traités' },
+    { number: '98%', label: 'Taux de Réussite' },
+    { number: '12', label: 'Avocats Associés' }
+  ]
+
+  return (
+    <section className="stats">
+      <div className="container">
+        <div className="stats-grid">
+          {stats.map((stat, index) => (
+            <div key={index} className="stat-item reveal">
+              <div className="stat-number">{stat.number}</div>
+              <div className="stat-label">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Expertises
+function Expertises() {
+  const expertises = [
+    {
+      icon: '⚖️',
+      title: 'Droit des Affaires',
+      description: 'Conseil stratégique et contentieux pour entreprises, fusions-acquisitions, et gouvernance corporate.',
+      link: 'En savoir plus'
+    },
+    {
+      icon: '🏛️',
+      title: 'Droit Immobilier',
+      description: 'Transactions complexes, baux commerciaux, copropriétés et litiges fonciers de prestige.',
+      link: 'En savoir plus'
+    },
+    {
+      icon: '👨‍👩‍👧',
+      title: 'Droit de la Famille',
+      description: 'Successions, donations, contrats de mariage et protection patrimoniale internationale.',
+      link: 'En savoir plus'
+    }
+  ]
+
+  return (
+    <section className="expertises section-padding" id="expertises">
+      <div className="container">
+        <div className="section-header reveal">
+          <p className="section-pretitle">Nos Domaines d'Intervention</p>
+          <h2 className="section-title">Une Expertise Multiséculaire</h2>
+          <div className="section-divider"></div>
+        </div>
+        <div className="expertises-grid">
+          {expertises.map((expertise, index) => (
+            <div key={index} className="expertise-card reveal" style={{ transitionDelay: `${index * 0.1}s` }}>
+              <div className="expertise-icon">{expertise.icon}</div>
+              <h3 className="expertise-title">{expertise.title}</h3>
+              <p className="expertise-description">{expertise.description}</p>
+              <a href="#" className="expertise-link">{expertise.link} →</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Témoignages
+function Temoignages() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  const temoignages = [
+    {
+      quote: "Une maîtrise exceptionnelle des dossiers les plus complexes. Le Cabinet Radouane a su défendre nos intérêts avec une rigueur et une élégance rares.",
+      author: "Henri de Montalembert",
+      role: "Président, Groupe Montalembert"
+    },
+    {
+      quote: "L'excellence juridique alliée à une compréhension fine des enjeux business. Un partenaire de confiance pour nos opérations internationales.",
+      author: "Isabelle Marchand",
+      role: "Directrice Générale, LMH Holdings"
+    },
+    {
+      quote: "Une équipe d'une grande classe, capable de naviguer avec aisance entre tradition juridique et modernité des pratiques.",
+      author: "Comte Alexandre de Talleyrand",
+      role: "Famille de Talleyrand"
+    }
+  ]
+
+  return (
+    <section className="temoignages section-padding" id="temoignages">
+      <div className="container">
+        <div className="temoignages-container">
+          <div className="temoignages-quote reveal">
+            {temoignages[currentSlide].quote}
+          </div>
+          <div className="temoignages-author reveal">
+            <span className="temoignages-name">{temoignages[currentSlide].author}</span>
+            <span className="temoignages-role">{temoignages[currentSlide].role}</span>
+          </div>
+          <div className="temoignages-nav">
+            {temoignages.map((_, index) => (
+              <button
+                key={index}
+                className={`temoignages-dot ${index === currentSlide ? 'active' : ''}`}
+                onClick={() => setCurrentSlide(index)}
+                aria-label={`Voir témoignage ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// Localisation
+function Localisation() {
+  return (
+    <section className="localisation" id="localisation">
+      <div className="localisation-grid">
+        <div className="localisation-content">
+          <h2 className="localisation-title">Notre Cabinet</h2>
+          <div className="localisation-info">
+            <div className="localisation-item">
+              <span className="localisation-icon">📍</span>
+              <span>12 Place Vendôme, 75001 Paris<br />France</span>
+            </div>
+            <div className="localisation-item">
+              <span className="localisation-icon">📞</span>
+              <span>+33 (0)1 42 68 57 43</span>
+            </div>
+            <div className="localisation-item">
+              <span className="localisation-icon">✉️</span>
+              <span>contact@cabinet-radouane.fr</span>
+            </div>
+            <div className="localisation-item">
+              <span className="localisation-icon">🕐</span>
+              <span>Lundi — Vendredi: 9h00 — 19h00</span>
+            </div>
+          </div>
+        </div>
+        <div className="localisation-map"></div>
+      </div>
+    </section>
+  )
+}
+
+// Contact
+function Contact() {
+  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'sent'>('idle')
+  const { ref, isInView } = useInView()
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setFormStatus('submitting')
+    // Simulation d'envoi
+    await new Promise(resolve => setTimeout(resolve, 1500))
     setFormStatus('sent')
     setTimeout(() => setFormStatus('idle'), 4000)
   }
 
-  const navLinks = [
-    { label: 'Accueil', href: '#accueil' },
-    { label: 'Expertises', href: '#expertises' },
-    { label: 'Témoignages', href: '#temoignages' },
-    { label: 'Localisation', href: '#localisation' },
-    { label: 'Contact', href: '#contact' },
-  ]
-
   return (
-    <div className="min-h-screen bg-cream font-body overflow-x-hidden">
-      {/* ---------- Navbar ---------- */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-forest shadow-lg">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            <a href="#accueil" className="flex items-center gap-2 group">
-              <Scale className="w-7 h-7 text-ochre transition-transform group-hover:rotate-12" />
-              <span className="font-heading text-xl md:text-2xl font-semibold text-cream tracking-wide">
-                Maître R. Radouane
-              </span>
-            </a>
-
-            {/* Desktop menu */}
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-cream/90 hover:text-ochre text-sm font-medium tracking-wide transition-colors duration-200"
-                >
-                  {link.label}
-                </a>
-              ))}
-              <a
-                href="tel:0522472342"
-                className="inline-flex items-center gap-2 bg-ochre hover:bg-ochre-light text-forest px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                  <Phone className="w-4 h-4" />
-                  05 22 47 23 42
-              </a>
-            </div>
-
-            {/* Mobile hamburger */}
-            <button
-              className="md:hidden text-cream p-2"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Menu"
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile dropdown */}
-        {isMenuOpen && (
-          <div className="md:hidden bg-forest border-t border-forest-light">
-            <div className="px-4 py-3 space-y-2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block text-cream/90 hover:text-ochre py-2 text-base font-medium transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))}
-              <a
-                href="tel:0522472342"
-                className="inline-flex items-center gap-2 bg-ochre text-forest px-4 py-2 rounded-full text-sm font-semibold mt-2"
-              >
-                <Phone className="w-4 h-4" />
-                05 22 47 23 42
-              </a>
-            </div>
-          </div>
-        )}
-      </nav>
-
-      {/* ---------- Hero ---------- */}
-      <header
-        id="accueil"
-        className="relative pt-28 pb-20 md:pt-40 md:pb-32 text-cream overflow-hidden hero-warm"
-      >
-
-        {/* Subtle arabesque overlay */}
-        <div className="absolute inset-0 arabesque-bg opacity-30 pointer-events-none" />
-
-        {/* Decorative circles */}
-        <div className="absolute top-20 right-10 w-64 h-64 rounded-full bg-ochre/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-10 left-10 w-48 h-48 rounded-full bg-cream/5 blur-2xl pointer-events-none" />
-
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 bg-cream/10 border border-cream/20 rounded-full px-4 py-1.5 mb-6">
-                <Star className="w-4 h-4 text-ochre fill-ochre" />
-                <span className="text-sm font-medium text-cream/90">Note : 4.9/5 — Cabinet de confiance</span>
-              </div>
-
-              <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
-                Maître <span className="text-ochre">Rami Radouane</span>
-              </h1>
-              <p className="text-lg md:text-xl text-cream/80 font-light leading-relaxed mb-6 max-w-xl">
-                Avocat au Barreau de Casablanca, Membre de l’Union Internationale des Avocats (UIA).
-                Votre défense avec rigueur, éthique et engagement.
-              </p>
-
-              <blockquote className="border-l-4 border-ochre pl-5 italic text-cream/70 text-base md:text-lg mb-8 max-w-lg">
-                « La justice n’est pas seulement une vertu, c’est un devoir que l’on doit à chaque homme. »
-              </blockquote>
-
-              <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-                <a
-                  href="#contact"
-                  className="inline-flex items-center gap-2 bg-ochre hover:bg-ochre-light text-forest px-8 py-3.5 rounded-full font-semibold text-base transition-all duration-200 shadow-lg hover:shadow-xl"
-                >
-                  Prendre rendez-vous
-                  <ChevronRight className="w-5 h-5" />
-                </a>
-                <a
-                  href="tel:0522472342"
-                  className="inline-flex items-center gap-2 border border-cream/30 hover:border-cream/60 text-cream px-8 py-3.5 rounded-full font-medium text-base transition-all duration-200"
-                >
-                  <Phone className="w-5 h-5" />
-                  05 22 47 23 42
-                </a>
-              </div>
-            </div>
-
-            {/* Stylized scales of justice illustration */}
-            <div className="flex-shrink-0 relative">
-              <div className="w-64 h-64 md:w-80 md:h-80 relative">
-                <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
-                  <defs>
-                    <linearGradient id="gradPillar" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#C9933E" />
-                      <stop offset="50%" stopColor="#DDB16A" />
-                      <stop offset="100%" stopColor="#C9933E" />
-                    </linearGradient>
-                    <linearGradient id="gradPan" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#C9933E" />
-                      <stop offset="100%" stopColor="#8B6B2F" />
-                    </linearGradient>
-                  </defs>
-                  {/* Base */}
-                  <rect x="60" y="175" width="80" height="10" rx="3" fill="url(#gradPillar)" />
-                  <rect x="85" y="120" width="30" height="60" rx="4" fill="url(#gradPillar)" />
-                  {/* Crossbeam */}
-                  <rect x="20" y="115" width="160" height="8" rx="4" fill="url(#gradPillar)" />
-                  {/* Center ornament */}
-                  <circle cx="100" cy="119" r="10" fill="#C9933E" />
-                  <circle cx="100" cy="119" r="5" fill="#FFF8E7" />
-                  {/* Left chain */}
-                  <line x1="40" y1="123" x2="40" y2="155" stroke="#DDB16A" strokeWidth="2" />
-                  <circle cx="40" cy="145" r="2" fill="#DDB16A" />
-                  <circle cx="40" cy="155" r="2" fill="#DDB16A" />
-                  {/* Right chain */}
-                  <line x1="160" y1="123" x2="160" y2="155" stroke="#DDB16A" strokeWidth="2" />
-                  <circle cx="160" cy="145" r="2" fill="#DDB16A" />
-                  <circle cx="160" cy="155" r="2" fill="#DDB16A" />
-                  {/* Left pan */}
-                  <path d="M 15 160 Q 40 185 65 160 Z" fill="url(#gradPan)" />
-                  {/* Right pan */}
-                  <path d="M 135 160 Q 160 185 185 160 Z" fill="url(#gradPan)" />
-                  {/* Decorative rays */}
-                  <g opacity="0.4">
-                    <line x1="100" y1="80" x2="100" y2="50" stroke="#DDB16A" strokeWidth="2" strokeLinecap="round" />
-                    <line x1="100" y1="80" x2="70" y2="65" stroke="#DDB16A" strokeWidth="2" strokeLinecap="round" />
-                    <line x1="100" y1="80" x2="130" y2="65" stroke="#DDB16A" strokeWidth="2" strokeLinecap="round" />
-                  </g>
-                  <circle cx="100" cy="80" r="18" fill="#C9933E" opacity="0.15" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* ---------- Expertises ---------- */}
-      <section id="expertises" className="py-20 md:py-28 bg-cream">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-ochre font-semibold text-sm tracking-widest uppercase">Domaines de compétence</span>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-forest mt-3">
-              Nos Expertises
-            </h2>
-            <div className="w-16 h-1 bg-ochre mx-auto mt-4 rounded-full" />
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <div className="group bg-cream-warm hover:bg-cream-dark rounded-2xl border border-ochre/10 hover:border-ochre/30 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
-              <div className="relative h-44 overflow-hidden">
-                <img
-                  src="/images/home.jpg"
-                  alt="Droit de la famille"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-forest/60 to-transparent" />
-                <div className="absolute bottom-3 left-3">
-                  <div className="w-10 h-10 bg-forest/90 rounded-lg flex items-center justify-center">
-                    <Heart className="w-5 h-5 text-cream" />
-                  </div>
-                </div>
-              </div>
-              <div className="p-7">
-                <h3 className="font-heading text-xl font-semibold text-forest mb-3">Droit de la famille</h3>
-                <p className="text-gray-600 leading-relaxed text-sm">
-                  Divorce, garde d’enfants, pension alimentaire, successions et régimes matrimoniaux.
-                  Une approche humaine et attentive pour préserver vos intérêts et ceux de vos proches.
-                </p>
-              </div>
-            </div>
-
-            {/* Card 2 */}
-            <div className="group bg-cream-warm hover:bg-cream-dark rounded-2xl border border-ochre/10 hover:border-ochre/30 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
-              <div className="relative h-44 overflow-hidden">
-                <img
-                  src="/images/keys.jpg"
-                  alt="Droit immobilier"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-forest/60 to-transparent" />
-                <div className="absolute bottom-3 left-3">
-                  <div className="w-10 h-10 bg-forest/90 rounded-lg flex items-center justify-center">
-                    <Home className="w-5 h-5 text-cream" />
-                  </div>
-                </div>
-              </div>
-              <div className="p-7">
-                <h3 className="font-heading text-xl font-semibold text-forest mb-3">Droit immobilier</h3>
-                <p className="text-gray-600 leading-relaxed text-sm">
-                  Transactions immobilières, baux commerciaux, litiges de copropriété, construction et urbanisme.
-                  Sécurisez vos investissements patrimoniaux avec un conseil de qualité.
-                </p>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="group bg-cream-warm hover:bg-cream-dark rounded-2xl p-8 border border-ochre/10 hover:border-ochre/30 shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="w-14 h-14 bg-forest/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-forest/20 transition-colors">
-                <Shield className="w-7 h-7 text-forest" />
-              </div>
-              <h3 className="font-heading text-xl font-semibold text-forest mb-3">Droit pénal</h3>
-              <p className="text-gray-600 leading-relaxed text-sm">
-                Défense pénale, assistance en garde à vue, procédures devant les tribunaux de première instance et la Cour d’appel.
-                Une défense déterminée et stratégique à chaque étape.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- Témoignages ---------- */}
-      <section id="temoignages" className="py-20 md:py-28 bg-cream-warm arabesque-bg">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-ochre font-semibold text-sm tracking-widest uppercase">Avis clients</span>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-forest mt-3">
-              Témoignages
-            </h2>
-            <div className="w-16 h-1 bg-ochre mx-auto mt-4 rounded-full" />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-cream rounded-2xl p-8 shadow-sm border border-ochre/10">
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`w-5 h-5 ${i === 4 ? 'text-ochre/60 fill-ochre/60' : 'text-ochre fill-ochre'}`} />
-                ))}
-                <span className="ml-2 text-sm font-semibold text-forest">4.9/5</span>
-              </div>
-              <blockquote className="text-gray-700 italic mb-6 leading-relaxed">
-                « Maître Radouane a su gérer mon dossier de divorce avec une grande humanité et professionnalisme. Ses conseils étaient clairs et il a toujours été disponible pour répondre à mes questions. »
-              </blockquote>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-forest text-cream flex items-center justify-center font-heading font-semibold">
-                  S
-                </div>
-                <div>
-                  <p className="font-semibold text-forest text-sm">Sofia B.</p>
-                  <p className="text-xs text-gray-500">Casablanca — Droit de la famille</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-cream rounded-2xl p-8 shadow-sm border border-ochre/10">
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className={`w-5 h-5 ${i === 4 ? 'text-ochre/60 fill-ochre/60' : 'text-ochre fill-ochre'}`} />
-                ))}
-                <span className="ml-2 text-sm font-semibold text-forest">4.9/5</span>
-              </div>
-              <blockquote className="text-gray-700 italic mb-6 leading-relaxed">
-                « Excellent accompagnement dans un litige immobilier complexe. Maître Radouane maîtrise parfaitement son sujet et sait défendre les intérêts de ses clients avec fermeté et respect. »
-              </blockquote>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-forest text-cream flex items-center justify-center font-heading font-semibold">
-                  Y
-                </div>
-                <div>
-                  <p className="font-semibold text-forest text-sm">Youssef A.</p>
-                  <p className="text-xs text-gray-500">Casablanca — Droit immobilier</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- Localisation ---------- */}
-      <section id="localisation" className="py-20 md:py-28 bg-cream">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <span className="text-ochre font-semibold text-sm tracking-widest uppercase">Retrouvez-nous</span>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-forest mt-3">
-              Localisation
-            </h2>
-            <div className="w-16 h-1 bg-ochre mx-auto mt-4 rounded-full" />
-          </div>
-
-          <div className="bg-cream-warm rounded-2xl overflow-hidden shadow-md border border-ochre/10">
-            <div className="grid md:grid-cols-3">
-              <div className="md:col-span-2">
-                <iframe
-                  title="Localisation du cabinet"
-                  src="https://www.google.com/maps?q=88+rue+Habacha,+Casablanca,+Maroc&hl=fr&z=16&ie=UTF8&output=embed"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, minHeight: '360px' }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-              <div className="p-8 md:p-10 flex flex-col justify-center bg-cream-warm">
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-10 h-10 bg-forest/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-forest" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-forest">Adresse</p>
-                    <p className="text-gray-600 text-sm mt-1">
-                      88, rue Habacha (ex Briey)<br />
-                      1er étage, Casablanca
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="w-10 h-10 bg-forest/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-5 h-5 text-forest" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-forest">Horaires</p>
-                    <p className="text-gray-600 text-sm mt-1">
-                      Lun — Ven : 09h00 à 17h00<br />
-                      Sur rendez-vous le samedi
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-forest/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-5 h-5 text-forest" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-forest">Téléphone</p>
-                    <p className="text-gray-600 text-sm mt-1">05 22 47 23 42</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- Contact ---------- */}
-      <section id="contact" className="py-20 md:py-28 bg-forest text-cream">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-ochre font-semibold text-sm tracking-widest uppercase">Discutons de votre dossier</span>
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-cream mt-3">
-              Contactez-nous
-            </h2>
-            <div className="w-16 h-1 bg-ochre mx-auto mt-4 rounded-full" />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-12 items-start">
-            {/* Contact info */}
-            <div className="space-y-8">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-cream/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Award className="w-6 h-6 text-ochre" />
-                </div>
-                <div>
-                  <h3 className="font-heading text-xl font-semibold mb-1">Maître Rami Radouane</h3>
-                  <p className="text-cream/70 text-sm">Avocat au Barreau de Casablanca<br />Membre de l’Union Internationale des Avocats (UIA)</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-cream/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-6 h-6 text-ochre" />
-                </div>
-                <div>
-                  <h3 className="font-heading text-lg font-semibold mb-1">Adresse du cabinet</h3>
-                  <p className="text-cream/70 text-sm">88, rue Habacha (ex Briey)<br />1er étage, Casablanca</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-cream/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-6 h-6 text-ochre" />
-                </div>
-                <div>
-                  <h3 className="font-heading text-lg font-semibold mb-1">Téléphone</h3>
-                  <p className="text-cream/70 text-sm">05 22 47 23 42</p>
-                </div>
-              </div>
-
-              <a
-                href="https://wa.me/212522472342"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 bg-[#25D366] hover:bg-[#1ebe57] text-white px-6 py-3.5 rounded-full font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Discuter sur WhatsApp
-              </a>
-            </div>
-
-            {/* Contact form */}
-            <div className="bg-cream/10 backdrop-blur-sm border border-cream/10 rounded-2xl p-8">
-              {formStatus === 'sent' ? (
-                <div className="text-center py-12">
-                  <CheckCircle2 className="w-16 h-16 text-ochre mx-auto mb-4" />
-                  <h3 className="font-heading text-2xl font-bold text-cream mb-2">Message envoyé !</h3>
-                  <p className="text-cream/70">Nous vous recontacterons dans les plus brefs délais.</p>
-                </div>
-              ) : (
-                <form onSubmit={handleFormSubmit} className="space-y-5">
-                  <div className="grid sm:grid-cols-2 gap-5">
-                    <div>
-                      <label htmlFor="nom" className="block text-sm font-medium text-cream/80 mb-1.5">Nom complet</label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest" />
-                        <input
-                          id="nom"
-                          type="text"
-                          required
-                          placeholder="Votre nom"
-                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream text-forest placeholder:text-forest/40 border-0 focus:ring-2 focus:ring-ochre outline-none text-sm"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-cream/80 mb-1.5">Email</label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest" />
-                        <input
-                          id="email"
-                          type="email"
-                          required
-                          placeholder="votre@email.com"
-                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream text-forest placeholder:text-forest/40 border-0 focus:ring-2 focus:ring-ochre outline-none text-sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="telephone" className="block text-sm font-medium text-cream/80 mb-1.5">Téléphone</label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-forest" />
-                      <input
-                        id="telephone"
-                        type="tel"
-                        placeholder="06 XX XX XX XX"
-                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream text-forest placeholder:text-forest/40 border-0 focus:ring-2 focus:ring-ochre outline-none text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="sujet" className="block text-sm font-medium text-cream/80 mb-1.5">Sujet</label>
-                    <select
-                      id="sujet"
-                      className="w-full px-4 py-3 rounded-xl bg-cream text-forest border-0 focus:ring-2 focus:ring-ochre outline-none text-sm appearance-none"
-                    >
-                      <option>Droit de la famille</option>
-                      <option>Droit immobilier</option>
-                      <option>Droit pénal</option>
-                      <option>Autre</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-cream/80 mb-1.5">Message</label>
-                    <textarea
-                      id="message"
-                      required
-                      rows={5}
-                      placeholder="Décrivez brièvement votre situation..."
-                      className="w-full px-4 py-3 rounded-xl bg-cream text-forest placeholder:text-forest/40 border-0 focus:ring-2 focus:ring-ochre outline-none text-sm resize-none"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 w-full bg-ochre hover:bg-ochre-light text-forest font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <Send className="w-4 h-4" />
-                    Envoyer le message
-                  </button>
-
-                  <p className="text-xs text-cream/50 text-center">
-                    Les données transmises sont confidentielles et traitées dans le strict respect du secret professionnel.
-                  </p>
-                </form>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- Footer ---------- */}
-      <footer className="bg-forest-dark text-cream-warm py-10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <Scale className="w-6 h-6 text-ochre" />
-              <span className="font-heading text-lg font-semibold">Maître Rami Radouane</span>
-            </div>
-            <p className="text-sm text-cream-warm/60 text-center">
-              © {new Date().getFullYear()} Cabinet Rami Radouane. Tous droits réservés.
+    <section className="contact section-padding" id="contact" ref={ref}>
+      <div className="container">
+        <div className="contact-grid">
+          <div className={`contact-info reveal ${isInView ? 'active' : ''}`}>
+            <h3>Prendre Rendez-vous</h3>
+            <p className="contact-text">
+              Notre cabinet vous accueille pour une consultation privée dans nos bureaux
+              historiques de la Place Vendôme. Chaque demande est traitée avec la plus
+              stricte confidentialité.
             </p>
-            <div className="flex items-center gap-4 text-sm">
-              <a href="#accueil" className="hover:text-ochre transition-colors">Accueil</a>
-              <a href="#expertises" className="hover:text-ochre transition-colors">Expertises</a>
-              <a href="#contact" className="hover:text-ochre transition-colors">Contact</a>
+            <div className="localisation-item">
+              <span className="localisation-icon">📞</span>
+              <span>+33 (0)1 42 68 57 43</span>
+            </div>
+            <div className="localisation-item">
+              <span className="localisation-icon">✉️</span>
+              <span>contact@cabinet-radouane.fr</span>
             </div>
           </div>
+          <form className={`contact-form reveal reveal-delay-1 ${isInView ? 'active' : ''}`} onSubmit={handleSubmit}>
+            {formStatus === 'sent' ? (
+              <div className="form-success">
+                <h4>Message envoyé !</h4>
+                <p>Nous vous recontacterons dans les plus brefs délais.</p>
+              </div>
+            ) : (
+              <>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Nom</label>
+                    <input type="text" className="form-input" placeholder="Votre nom" required />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Prénom</label>
+                    <input type="text" className="form-input" placeholder="Votre prénom" required />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Email</label>
+                    <input type="email" className="form-input" placeholder="votre@email.fr" required />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Téléphone</label>
+                    <input type="tel" className="form-input" placeholder="+33 6 00 00 00 00" />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Message</label>
+                  <textarea className="form-textarea" placeholder="Décrivez brièvement votre demande..." required></textarea>
+                </div>
+                <button type="submit" className="form-submit" disabled={formStatus === 'submitting'}>
+                  {formStatus === 'submitting' ? 'Envoi en cours...' : 'Envoyer la Demande'}
+                </button>
+              </>
+            )}
+          </form>
         </div>
-      </footer>
-
-      {/* ---------- WhatsApp Floating Button ---------- */}
-      <a
-        href="https://wa.me/212522472342"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] hover:bg-[#1ebe57] text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110"
-        aria-label="Contacter sur WhatsApp"
-      >
-        <MessageCircle className="w-7 h-7" />
-      </a>
-    </div>
+      </div>
+    </section>
   )
 }
 
-export default App
+// Footer
+function Footer() {
+  return (
+    <footer className="footer">
+      <div className="container">
+        <div className="footer-grid">
+          <div className="footer-brand">
+            <span className="footer-logo">Cabinet Radouane</span>
+            <p>
+              Depuis 1892, notre cabinet incarne l'excellence du barreau de Paris.
+              Un héritage de rigueur, de prestige et de dévouement à la défense de vos intérêts.
+            </p>
+          </div>
+          <div>
+            <h4 className="footer-title">Navigation</h4>
+            <ul className="footer-links">
+              <li><a href="#accueil">Accueil</a></li>
+              <li><a href="#expertises">Expertises</a></li>
+              <li><a href="#temoignages">Témoignages</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="footer-title">Expertises</h4>
+            <ul className="footer-links">
+              <li><a href="#">Droit des Affaires</a></li>
+              <li><a href="#">Droit Immobilier</a></li>
+              <li><a href="#">Droit de la Famille</a></li>
+              <li><a href="#">Arbitrage International</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="footer-title">Mentions</h4>
+            <ul className="footer-links">
+              <li><a href="#">Mentions Légales</a></li>
+              <li><a href="#">Politique de Confidentialité</a></li>
+              <li><a href="#">CGU</a></li>
+              <li><a href="#">Plan du Site</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p className="footer-copyright">© 2026 Cabinet Radouane — Tous droits réservés</p>
+          <ul className="footer-legal">
+            <li><a href="#">Confidentialité</a></li>
+            <li><a href="#">Cookies</a></li>
+            <li><a href="#">Mentions</a></li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+// App principale
+export default function App() {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active')
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
+    )
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el))
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <>
+      <Navigation />
+      <Hero />
+      <Stats />
+      <Expertises />
+      <Temoignages />
+      <Localisation />
+      <Contact />
+      <Footer />
+    </>
+  )
+}
